@@ -1,0 +1,45 @@
+---
+- name: Test Ansible on Docker
+  hosts: my_container
+  connection: docker
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_remote_tmp: /tmp
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install python3 and pip
+      apt:
+        name:
+          - mysql-server
+        state: present
+
+    - name: Start MySQL service
+      raw: service mysql start
+
+    - name: Check if database exists
+      raw: mysql -uroot -ppassword -e "SHOW DATABASES LIKE 'olist_db';"
+      register: db_check
+      ignore_errors: yes
+
+    - name: Create database if not exists
+      raw: mysql -uroot -ppassword -e "CREATE DATABASE olist_db;"
+      when: db_check.stdout == ""
+
+    - name: Copy the SQL dump file to the container
+      copy:
+        src: ./files/olist_db.sql 
+        dest: /tmp/olist_db.sql
+
+    - name: Restore the database from SQL dump
+      raw: mysql -uroot -ppassword olist_db < /tmp/olist_db.sql
+
+    - name: Create a new MySQL user and grant privileges (optional)
+      raw: |
+        mysql -uroot -ppassword -e "CREATE USER 'farzana'@'%' IDENTIFIED BY 'Farzana_password';"
+        mysql -uroot -ppassword -e "GRANT ALL PRIVILEGES ON olist_db.* TO 'farzana'@'%';"
+        mysql -uroot -ppassword -e "FLUSH PRIVILEGES;"
+

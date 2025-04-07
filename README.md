@@ -34,3 +34,18 @@ Create indexes and re-run your tests and timings. Make some notes and commit the
 |explanation of searches, goals and outcomes of indexing|1|
 |||
 |total|10|
+
+Setup docker 
+```
+pip install docker
+ansible-galaxy collection install community.docker
+
+docker run -dit --name ansible-db-lab ubuntu:24.04 bash
+docker exec -it ansible-db-lab bash
+apt install -y python3 python3-pip
+```
+
+Run ansible
+```
+ ansible-playbook -i hosts.ini up.yaml
+```
