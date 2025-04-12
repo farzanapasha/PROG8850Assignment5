@@ -42,7 +42,7 @@ ansible-galaxy collection install community.docker
 
 docker run -dit --name ansible-db-lab ubuntu:24.04 bash
 docker exec -it ansible-db-lab bash
-apt install -y python3 python3-pip
+apt-get update && apt install -y python3 python3-pip
 ```
 
 Run ansible

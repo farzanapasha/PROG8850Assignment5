@@ -1,5 +1,5 @@
 ---
-- name: Test Ansible on Docker
+- name: Fjah1872 - Ansible Setup for MySQL DB
   hosts: my_container
   connection: docker
   vars:
@@ -11,10 +11,9 @@
       apt:
         update_cache: yes
 
-    - name: Install python3 and pip
+    - name: Install MySQL server
       apt:
-        name:
-          - mysql-server
+        name: mysql-server
         state: present
 
     - name: Start MySQL service
@@ -29,17 +28,18 @@
       raw: mysql -uroot -ppassword -e "CREATE DATABASE olist_db;"
       when: db_check.stdout == ""
 
-    - name: Copy the SQL dump file to the container
+    - name: Copy the SQL file to the container
       copy:
-        src: ./files/olist_db.sql 
-        dest: /tmp/olist_db.sql
+        src: ./files/sql
+        dest: /tmp/
 
-    - name: Restore the database from SQL dump
-      raw: mysql -uroot -ppassword olist_db < /tmp/olist_db.sql
+    - name: Copy the CSV files to the container
+      copy:
+        src: ./files/csv/
+        dest: /var/lib/mysql-files/
 
-    - name: Create a new MySQL user and grant privileges (optional)
-      raw: |
-        mysql -uroot -ppassword -e "CREATE USER 'farzana'@'%' IDENTIFIED BY 'Farzana_password';"
-        mysql -uroot -ppassword -e "GRANT ALL PRIVILEGES ON olist_db.* TO 'farzana'@'%';"
-        mysql -uroot -ppassword -e "FLUSH PRIVILEGES;"
-
+    - name: Run SQL file to load schema/data
+      shell: |
+        mysql --force -u root -ppassword olist_db < /tmp/sql/createdb.sql
+      args:
+        executable: /bin/bash
