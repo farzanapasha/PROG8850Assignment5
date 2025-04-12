@@ -49,3 +49,9 @@ Run ansible
 ```
  ansible-playbook -i hosts.ini up.yaml
 ```
+File files/sql/createdb.sql
+Ansible uses this file to load data to the tables.
+
+File files/sql/performance_test.sql contains the queries to perform analysis and tests. It also conatins indexing of tables. 
+
+File files/sql/fulltext_search.sql  contains quries related to full text search.
